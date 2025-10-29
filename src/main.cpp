@@ -1,13 +1,15 @@
 #define TRANS_PIN 1
+#define DEBUG
 
 #include <ArduinoHA.h>
-#include <WiFiC3.h>
+
+#ifdef BOARD_PORTENTA
+#include "WiFiC3.h"
+#else
+#include "WiFi.h"
+#endif
 
 #include "secrets.h"
-
-char ssid[] = SECRET_SSID;
-char pass[] = SECRET_PASS;
-int status = WL_IDLE_STATUS;
 
 HADevice device;
 WiFiClient client;
@@ -17,8 +19,10 @@ HALight onboardLed("onboardLed");
 HASwitch transSwitch("transSwitch");
 
 void onStateCommand(bool state, HALight* sender) {
+#ifdef DEBUG
     Serial.print("State: ");
     Serial.println(state);
+#endif
 
     if (state) {
         digitalWrite(LED_BUILTIN, LOW);
@@ -35,34 +39,43 @@ void onTransCommand(bool state, HASwitch* sender) {
 }
 
 void setup() {
-    byte mac[WL_MAC_ADDR_LENGTH];
+#ifdef DEBUG
+    Serial.begin(9600);
+#endif
+
+    byte mac[6];
     WiFi.macAddress(mac);
 
     // Setup device on HASS
     device.setName("Arduino");
     device.setSoftwareVersion("1.0.0");
     device.setUniqueId(mac, sizeof(mac));
-
-    // Begin Serial for debugging
-    Serial.begin(9600);
-    while (!Serial) {
-        ;  // wait for serial port to connect. Needed for native USB port only
-    }
+    device.enableLastWill();
 
     // Connect to WiFi
-    while (status != WL_CONNECTED) {
+    while (WiFi.status() != WL_CONNECTED) {
+#ifdef DEBUG
         Serial.print("Attempting to connect to WPA SSID: ");
-        Serial.println(ssid);
-        // Connect to WPA/WPA2 network:
-        status = WiFi.begin(ssid, pass);
+        Serial.println(WIFI_SSID);
+#endif
 
-        // wait 10 seconds for connection:
+#ifndef WIFI_PASSWORD
+        WiFi.begin(WIFI_SSID);
+#else
+        WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+#endif
+
         delay(10000);
     }
 
+#ifdef DEBUG
     Serial.println("You're connected to the network");
+    Serial.println(WiFi.localIP().toString());
+    Serial.println(WiFi.gatewayIP().toString());
+#endif
 
     // Begin MQTT
+    mqtt.setKeepAlive(90);
     mqtt.begin(MQTT_BROKER, MQTT_USER, MQTT_PASSWORD);
 
     // Setup onboardLed
