@@ -1,6 +1,3 @@
-#define TRANS_PIN 1
-#define DEBUG
-
 #include <ArduinoHA.h>
 
 #ifdef BOARD_PORTENTA
@@ -9,6 +6,7 @@
 #include "WiFi.h"
 #endif
 
+#include "pins.h"
 #include "secrets.h"
 
 HADevice device;
@@ -34,7 +32,7 @@ void onStateCommand(bool state, HALight* sender) {
 }
 
 void onTransCommand(bool state, HASwitch* sender) {
-    digitalWrite(TRANS_PIN, state);
+    digitalWrite(IRTX_PIN, state);
     sender->setState(state);
 }
 
@@ -47,7 +45,7 @@ void setup() {
     WiFi.macAddress(mac);
 
     // Setup device on HASS
-    device.setName("Arduino");
+    device.setName("ESP");
     device.setSoftwareVersion("1.0.0");
     device.setUniqueId(mac, sizeof(mac));
     device.enableLastWill();
@@ -85,7 +83,7 @@ void setup() {
     onboardLed.onStateCommand(onStateCommand);
 
     // Setup trans
-    pinMode(TRANS_PIN, OUTPUT);
+    pinMode(IRTX_PIN, OUTPUT);
     transSwitch.setName("Transistor");
     transSwitch.onCommand(onTransCommand);
 
