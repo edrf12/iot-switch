@@ -74,7 +74,7 @@ void setup() {
 
     // Begin MQTT
     mqtt.setKeepAlive(90);
-    mqtt.begin(MQTT_BROKER, MQTT_USER, MQTT_PASSWORD);
+    mqtt.begin(MQTT_BROKER, MQTT_PORT, MQTT_USER, MQTT_PASSWORD);
 
     // Setup onboardLed
     pinMode(LED_BUILTIN, OUTPUT);
