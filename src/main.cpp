@@ -1,11 +1,6 @@
 #include <ArduinoHA.h>
 
-#ifdef BOARD_PORTENTA
-#include "WiFiC3.h"
-#else
 #include "WiFi.h"
-#endif
-
 #include "pins.h"
 #include "secrets.h"
 
@@ -51,6 +46,9 @@ void setup() {
     device.enableLastWill();
 
     // Connect to WiFi
+    WiFi.disconnect();
+    WiFi.mode(WIFI_STA);
+
     while (WiFi.status() != WL_CONNECTED) {
 #ifdef DEBUG
         Serial.print("Attempting to connect to WPA SSID: ");
@@ -87,8 +85,8 @@ void setup() {
     transSwitch.setName("Transistor");
     transSwitch.onCommand(onTransCommand);
 
-    pinMode(4, OUTPUT);
-    digitalWrite(4, HIGH);
+    pinMode(D5, OUTPUT);
+    digitalWrite(D5, HIGH);
 }
 
 void loop() { mqtt.loop(); }
