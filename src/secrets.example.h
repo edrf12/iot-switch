@@ -1,5 +1,10 @@
-#define SECRET_SSID ""
+#define WIFI_SSID "Wokwi-GUEST"
 #define SECRET_PASS ""
-#define MQTT_BROKER ""
-#define MQTT_USER ""
-#define MQTT_PASSWORD ""
+#define MQTT_BROKER "146.70.248.10"
+#define MQTT_PORT 2172
+#define MQTT_USER "alphaswitch"
+#define MQTT_PASSWORD "yogurt-broom-neon"
+#define MQTT_BROKER "146.70.248.10"
+#define MQTT_PORT 2172
+#define MQTT_USER "alphaswitch"
+#define MQTT_PASSWORD "yogurt-broom-neon"
