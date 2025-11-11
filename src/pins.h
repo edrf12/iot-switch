@@ -1,3 +1,6 @@
+#ifndef REMOTE_H_DEFS
+#define REMOTE_H_DEFS 1
+
 #define IRRX_PIN A0
 #define IRTX_PIN D3
 
@@ -13,3 +16,5 @@
 #define RELAY_PIN D9
 
 #define TOUCH_PIN D10
+
+#endif  // REMOTE_H_DEFS
