@@ -2,7 +2,15 @@
 
 #include "WiFi.h"
 #include "pins.h"
-#include "secrets.h"
+#include "secrets.example.h"
+
+#include "lights.h"
+#include "umid.h"
+#include "ac.h"
+
+AC ar;
+Lights luz;
+Umid umidade;
 
 HADevice device;
 WiFiClient client;
@@ -32,6 +40,7 @@ void onTransCommand(bool state, HASwitch* sender) {
 }
 
 void setup() {
+
 #ifdef DEBUG
     Serial.begin(9600);
 #endif
@@ -87,6 +96,50 @@ void setup() {
 
     pinMode(D5, OUTPUT);
     digitalWrite(D5, HIGH);
+    pinMode(4, OUTPUT);
+    digitalWrite(4, HIGH);
+
+    mqtt.addDeviceType(&onboardLed);
+    mqtt.addDeviceType(&transSwitch);
+
+
 }
 
-void loop() { mqtt.loop(); }
+
+void loop() { 
+    
+    mqtt.loop(); 
+    {
+    if (Serial.available()) {
+        String comando = Serial.readStringUntil('\n');
+        comando.trim();
+
+        if (comando == "ac_on") ar.ligar();
+        else if (comando == "ac_off") ar.desligar();
+        else if (comando.startsWith("set_temp")) {
+            float valor = comando.substring(9).toFloat();
+            ar.setTemperatura(valor);
+        }
+
+        else if (comando == "light_on") luz.ligar();
+        else if (comando == "light_off") luz.desligar();
+        else if (comando.startsWith("set_light")) {
+            int valor = comando.substring(10).toInt();
+            luz.setIntensidade(valor);
+        }
+
+        else if (comando == "umid_on") umidade.ativar();
+        else if (comando == "umid_off") umidade.desativar();
+        else if (comando.startsWith("set_umid")) {
+            float valor = comando.substring(9).toFloat();
+            umidade.setUmidade(valor);
+        }
+
+        else {
+            Serial.println("Comando não reconhecido.");
+        }
+    }
+}
+
+}
+
