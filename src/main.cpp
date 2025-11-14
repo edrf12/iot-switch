@@ -14,7 +14,6 @@ WiFiClient client;
 HAMqtt mqtt(client, device);
 
 HALight onboardLed("onboardLed");
-HASwitch transSwitch("transSwitch");
 
 void onStateCommand(bool state, HALight* sender) {
 #ifdef DEBUG
@@ -28,11 +27,6 @@ void onStateCommand(bool state, HALight* sender) {
         digitalWrite(LED_BUILTIN, HIGH);
     }
 
-    sender->setState(state);  // report state back to the Home Assistant
-}
-
-void onTransCommand(bool state, HASwitch* sender) {
-    digitalWrite(IRTX_PIN, state);
     sender->setState(state);
 }
 
@@ -48,6 +42,7 @@ void setup() {
     device.setName("ESP");
     device.setSoftwareVersion("1.0.0");
     device.setUniqueId(mac, sizeof(mac));
+    device.enableSharedAvailability();
     device.enableLastWill();
 
     // Connect to WiFi
@@ -74,7 +69,7 @@ void setup() {
 
     // Begin MQTT
     mqtt.setKeepAlive(90);
-    mqtt.begin(MQTT_BROKER, MQTT_USER, MQTT_PASSWORD);
+    mqtt.begin(MQTT_BROKER, MQTT_PORT, MQTT_USER, MQTT_PASSWORD);
 
     // Setup onboardLed
     pinMode(LED_BUILTIN, OUTPUT);
@@ -82,13 +77,6 @@ void setup() {
     onboardLed.setName("Onboard LED");
     onboardLed.onStateCommand(onStateCommand);
 
-    // Setup trans
-    pinMode(IRTX_PIN, OUTPUT);
-    transSwitch.setName("Transistor");
-    transSwitch.onCommand(onTransCommand);
-
-    pinMode(4, OUTPUT);
-    digitalWrite(4, HIGH);
 }
 
 void loop() { mqtt.loop(); }
