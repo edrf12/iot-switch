@@ -6,6 +6,7 @@
 #include "WiFi.h"
 #endif
 
+#include "actions/remote/remote.h"
 #include "pins.h"
 #include "secrets.h"
 
@@ -13,6 +14,7 @@ HADevice device;
 WiFiClient client;
 HAMqtt mqtt(client, device);
 
+AC ac("acEduardo", "AC", IRTX_PIN, DHT_PIN, DHT_TYPE);
 HALight onboardLed("onboardLed");
 
 void onStateCommand(bool state, HALight* sender) {
@@ -77,6 +79,9 @@ void setup() {
     onboardLed.setName("Onboard LED");
     onboardLed.onStateCommand(onStateCommand);
 
+    ac.setup();
 }
 
-void loop() { mqtt.loop(); }
+void loop() {
+    mqtt.loop();
+}
