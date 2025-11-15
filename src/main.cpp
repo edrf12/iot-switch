@@ -1,4 +1,5 @@
 #include <ArduinoHA.h>
+#include <DHT_U.h>
 
 #ifdef BOARD_PORTENTA
 #include "WiFiC3.h"
@@ -15,7 +16,9 @@ HADevice device;
 WiFiClient client;
 HAMqtt mqtt(client, device);
 
-AC ac("acEduardo", "AC", IRTX_PIN, DHT_PIN, DHT_TYPE);
+DHT dht(DHT_PIN, DHT_TYPE);
+
+AC ac("acEduardo", "AC", IRTX_PIN, dht);
 Switch lamp("luzPrincipal", "Luz", RELAY_PIN);
 
 HALight onboardLed("onboardLed");
@@ -71,6 +74,9 @@ void setup() {
     Serial.println(WiFi.localIP().toString());
     Serial.println(WiFi.gatewayIP().toString());
 #endif
+
+    // Initialize dht before all entities
+    dht.begin();
 
     // Begin MQTT
     mqtt.setKeepAlive(90);
