@@ -1,11 +1,10 @@
 #include "remote.h"
 
-AC::AC(const char* id, const char* name, uint8_t ir_pin, uint8_t temp_pin,
-       uint8_t temp_type)
+AC::AC(const char* id, const char* name, uint8_t ir_pin, DHT dht)
     : entity(id, HAHVAC::TargetTemperatureFeature | HAHVAC::PowerFeature |
                      HAHVAC::ModesFeature | HAHVAC::FanFeature),
       sender(ir_pin),
-      dht(temp_pin, temp_type) {
+      dht(dht) {
     entity.setName(name);
 }
 
@@ -73,8 +72,6 @@ void AC::onTargetTemperatureCommand(HANumeric target, HAHVAC* sender) {
 }
 
 void AC::setup() {
-    dht.begin();
-
     // Setup sender
     this->sender.next.protocol = decode_type_t::MIDEA;
     this->sender.next.model = 1;
