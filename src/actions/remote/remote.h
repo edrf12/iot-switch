@@ -17,7 +17,7 @@ class AC {
 
     IRac sender;
 
-    DHT dht;
+    DHT* dht;
 
     uint8_t temperature = 24;
     float room_temperature = 24;
@@ -37,7 +37,7 @@ class AC {
     void onTargetTemperatureCommand(HANumeric target, HAHVAC* sender);
 
    public:
-    AC(const char* id, const char* name, uint8_t ir_pin, DHT dht);
+    AC(const char* id, const char* name, uint8_t ir_pin, DHT* dht);
 
     void setup();
     void loop();

@@ -1,6 +1,6 @@
 #include "remote.h"
 
-AC::AC(const char* id, const char* name, uint8_t ir_pin, DHT dht)
+AC::AC(const char* id, const char* name, uint8_t ir_pin, DHT* dht)
     : entity(id, HAHVAC::TargetTemperatureFeature | HAHVAC::PowerFeature |
                      HAHVAC::ModesFeature | HAHVAC::FanFeature),
       sender(ir_pin),
@@ -87,7 +87,6 @@ void AC::setup() {
     this->sender.next.sleep = -1;
     this->sender.next.clean = false;
     this->sender.next.clock = -1;
-    this->sender.next.power = false;
 
     // Setup HomeAssistant entity (if needed)
     this->entity.setMinTemp(18);
@@ -96,6 +95,7 @@ void AC::setup() {
     this->entity.setModes(HAHVAC::AutoMode | HAHVAC::OffMode |
                           HAHVAC::CoolMode | HAHVAC::FanOnlyMode |
                           HAHVAC::DryMode);
+    this->entity.setCurrentTemperature(this->room_temperature);
 
     if (this->entity.getCurrentTargetTemperature().isSet()) {
         this->sender.next.degrees =
@@ -107,6 +107,9 @@ void AC::setup() {
     }
     this->sender.next.mode = convert_mode(this->entity.getCurrentMode());
     this->sender.next.fanspeed = convert_fan(this->entity.getCurrentFanMode());
+
+    this->sender.next.power =
+        this->entity.getCurrentMode() == HAHVAC::Mode::OffMode ? false : true;
 
     // Bind to events
     entity.onPowerCommand([this](bool state, HAHVAC* sender) {
@@ -129,7 +132,8 @@ void AC::setup() {
 
 void AC::loop() {
     if (millis() - this->last_temp_publish > 30000) {
-        float temp = dht.readTemperature();
-        this->entity.setCurrentTemperature(temp);
+        room_temperature = dht->readTemperature();
+        this->entity.setCurrentTemperature(room_temperature);
+        this->last_temp_publish += 30000;
     }
 }
