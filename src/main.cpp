@@ -8,6 +8,9 @@
 #include "actions/switch/switch.h"
 #include "pins.h"
 #include "secrets.h"
+#include "sensors/button/button.h"
+#include "sensors/humidity/humidity.h"
+#include "sensors/luminosity/luminosity.h"
 
 HADevice device;
 WiFiClient client;
@@ -15,10 +18,15 @@ HAMqtt mqtt(client, device);
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
-AC ac("acEduardo", "AC", IRTX_PIN, dht);
 SoftwareSerial COMSerial(D2, D3);
 Seeed_HSP24 xiao_config(COMSerial);
+
+AC ac("acEduardo", "AC", IRTX_PIN, &dht);
 Switch lamp("luzPrincipal", "Luz", RELAY_PIN);
+
+Button button("Botão de Cena", TOUCH_PIN);
+Luminosity luminosity("luminosidade", "Luminosidade", LIGHT_PIN);
+Humidity humidity("umidade", "Umidade", &dht);
 
 HALight onboardLed("onboardLed");
 
@@ -46,7 +54,7 @@ void setup() {
     WiFi.macAddress(mac);
 
     // Setup device on HASS
-    device.setName("ESP");
+    device.setName("Alpha Switch");
     device.setSoftwareVersion("1.0.0");
     device.setUniqueId(mac, sizeof(mac));
     device.enableSharedAvailability();
@@ -90,11 +98,16 @@ void setup() {
     onboardLed.setName("Onboard LED");
     onboardLed.onStateCommand(onStateCommand);
 
+    // Initialize entities
     ac.setup();
     lamp.setup();
+    button.setup();
 }
 
 void loop() {
     mqtt.loop();
     ac.loop();
+    button.loop();
+    luminosity.loop();
+    humidity.loop();
 }
