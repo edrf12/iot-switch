@@ -1,11 +1,8 @@
 #include <ArduinoHA.h>
 #include <DHT_U.h>
-
-#ifdef BOARD_PORTENTA
-#include "WiFiC3.h"
-#else
-#include "WiFi.h"
-#endif
+#include <SoftwareSerial.h>
+#include <WiFi.h>
+#include <mmwave_for_xiao.h>
 
 #include "actions/remote/remote.h"
 #include "actions/switch/switch.h"
@@ -19,6 +16,8 @@ HAMqtt mqtt(client, device);
 DHT dht(DHT_PIN, DHT_TYPE);
 
 AC ac("acEduardo", "AC", IRTX_PIN, dht);
+SoftwareSerial COMSerial(D2, D3);
+Seeed_HSP24 xiao_config(COMSerial);
 Switch lamp("luzPrincipal", "Luz", RELAY_PIN);
 
 HALight onboardLed("onboardLed");
@@ -77,6 +76,9 @@ void setup() {
 
     // Initialize dht before all entities
     dht.begin();
+
+    // Initialize proximity sensor
+    xiao_config.disableEngineeringModel();
 
     // Begin MQTT
     mqtt.setKeepAlive(90);
