@@ -1,6 +1,6 @@
 #include "humidity.h"
 
-#define READING_INTERVAL 60000
+#define READING_INTERVAL 30000
 
 Humidity::Humidity(const char* id, const char* name, DHT* dht)
     : entity(id, HABaseDeviceType::PrecisionP0), dht(dht) {
@@ -9,9 +9,9 @@ Humidity::Humidity(const char* id, const char* name, DHT* dht)
 }
 
 void Humidity::loop() {
-    if (millis() - last_humidity_publish >= READING_INTERVAL) {
+    if (millis() - last_humidity_publish > READING_INTERVAL) {
         last_humidity_publish += READING_INTERVAL;
 
-        entity.setCurrentValue(dht->readHumidity());
+        entity.setValue(dht->readHumidity());
     }
 }
