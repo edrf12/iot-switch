@@ -41,5 +41,6 @@ class AC {
 
     void setup();
     void loop();
+    float getTarget();
 };
 #endif  // REMOTE_H_DEF

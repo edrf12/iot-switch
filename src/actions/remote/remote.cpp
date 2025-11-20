@@ -73,7 +73,7 @@ void AC::onTargetTemperatureCommand(HANumeric target, HAHVAC* sender) {
 
 void AC::setup() {
     // Setup sender
-    this->sender.next.protocol = decode_type_t::MIDEA;
+    this->sender.next.protocol = decode_type_t::FUJITSU_AC;
     this->sender.next.model = 1;
     this->sender.next.celsius = true;
     this->sender.next.swingv = stdAc::swingv_t::kOff;
@@ -91,7 +91,7 @@ void AC::setup() {
     // Setup HomeAssistant entity (if needed)
     this->entity.setMinTemp(18);
     this->entity.setMaxTemp(30);
-    this->entity.setTempStep(0.5);
+    this->entity.setTempStep(1);
     this->entity.setModes(HAHVAC::AutoMode | HAHVAC::OffMode |
                           HAHVAC::CoolMode | HAHVAC::FanOnlyMode |
                           HAHVAC::DryMode);
@@ -136,4 +136,8 @@ void AC::loop() {
         this->entity.setCurrentTemperature(room_temperature);
         this->last_temp_publish += 30000;
     }
+}
+
+float AC::getTarget() {
+    return this->entity.getCurrentTargetTemperature().toFloat();
 }
