@@ -20,12 +20,5 @@ void Luminosity::loop() {
         float lux = microamps * 2.0;
 
         entity.setValue(lux);
-
-#ifdef DEBUG
-        Serial.print("Raw Luminosity: ");
-        Serial.print(rawValue);
-        Serial.print(" -> Mapped: ");
-        Serial.println(mappedValue);
-#endif  // DEBUG
     }
 }
